@@ -1,6 +1,6 @@
 /*
  */
-package com.mycompany.extractgithub;
+package br.edu.ufsm.controller;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -18,7 +18,7 @@ import org.eclipse.egit.github.core.service.RepositoryService;
  * @author Dougl
  */
 public class ExtracaoIssue {
-    public static void main(String[] args) {
+    public static void main() {
         try {
             RepositoryService service = new RepositoryService();
             RepositoryId repo = new RepositoryId("rails", "rails");
