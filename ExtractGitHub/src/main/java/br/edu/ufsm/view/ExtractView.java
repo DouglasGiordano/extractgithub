@@ -9,6 +9,7 @@ import br.edu.ufsm.controller.ExtracaoCommit;
 import br.edu.ufsm.controller.ExtracaoRepository;
 import br.edu.ufsm.model.Commit;
 import br.edu.ufsm.model.Project;
+import br.edu.ufsm.persistence.CommitBD;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -165,14 +166,7 @@ public class ExtractView extends javax.swing.JFrame {
         Project projeto = ExtracaoRepository.extractRepository(client, repo);
         List<Commit> commits = ExtracaoCommit.extract(client, repo);
         projeto.setCommits(commits);
-        EntityManagerFactory factory
-                = Persistence.createEntityManagerFactory("ExtractGitHub");
-        EntityManager em = factory.createEntityManager();
-        em.getTransaction().begin();
-
-        em.merge(projeto);
-
-        em.getTransaction().commit();
+        CommitBD.save(projeto);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**

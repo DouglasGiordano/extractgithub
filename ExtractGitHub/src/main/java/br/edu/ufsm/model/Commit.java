@@ -21,10 +21,11 @@ import javax.persistence.OneToMany;
  */
 @Entity
 public class Commit implements Serializable {
+
     @Id
     private String sha;
     private int commentCount;
-    @Column(length = 5000)
+    @Column(length = 10000)
     private String message;
     @Embedded
     private CommitStats stats;
@@ -43,18 +44,16 @@ public class Commit implements Serializable {
         this.commentCount = commit.getCommit().getCommentCount();
         this.message = commit.getCommit().getMessage();
         this.stats = new CommitStats(commit.getStats());
-        try{
-        for(org.eclipse.egit.github.core.CommitFile file: commit.getFiles()){
-            files.add(new CommitFile(file));
-        }
-        }catch(NullPointerException ex){
-            System.out.println(ex);
+        if (commit.getFiles() != null) {
+            for (org.eclipse.egit.github.core.CommitFile file : commit.getFiles()) {
+                files.add(new CommitFile(file));
+            }
         }
         this.sha = commit.getSha();
         this.url = commit.getUrl();
         this.author = new User(commit.getAuthor());
         this.committer = new User(commit.getCommitter());
-        if(author.getId()==0 && committer.getId() ==0){
+        if (author.getId() == 0 && committer.getId() == 0) {
             this.author = null;
             this.committer = null;
         }

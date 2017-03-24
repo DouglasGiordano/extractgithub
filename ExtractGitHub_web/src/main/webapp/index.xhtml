@@ -1,0 +1,216 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ufsm="http://xmlns.jcp.org/jsf/composite/ufsm">
+    <h:head>
+        <f:facet name="first">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <meta charset="UTF-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+            <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+            <meta name="apple-mobile-web-app-capable" content="yes" />
+            <meta name="description" content="iCode ERP - Porthal Sistemas (www.icodeerp.com.br)" />
+            <meta name="author" content="Porthal Sistemas LTDA" />
+        </f:facet>
+
+        <title>iCode ERP - Porthal Sistemas</title>
+
+        <link rel="shortcut icon" href="#{resource['images/iCodeIcon.png']}"/>
+        <h:outputStylesheet name="vendor/font-awesome/css/font-awesome.css" library="template" />
+        <h:outputStylesheet name="css/clean-blog.min.css" library="template" />
+        <h:outputStylesheet name="vendor/bootstrap/css/bootstrap.min.css" library="template" />
+        <h:outputStylesheet name="datatable.css" library="css" />
+        <h:outputStylesheet name="loading.css" library="css" />
+        <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'></link>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'></link>
+        <h:outputScript name="vendor/jquery/jquery.min.js" library="template" />
+        <h:outputScript name="vendor/bootstrap/js/bootstrap.min.js" library="template" />
+        <h:outputScript name="js/contact_me.js" library="template" />
+        <h:outputScript name="vendor/jquery/jquery.min.js" library="template" />
+        <h:outputScript name="vendor/jquery/jquery.min.js" library="template" />
+
+        <!-- Theme JavaScript -->
+        <script src="js/clean-blog.min.js"></script>
+    </h:head>
+    <h:body>
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header page-scroll">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        Menu <i class="fa fa-bars"></i>
+                    </button>
+                    <a class="navbar-brand" href="index.html">Extract Editor</a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="index.html">Home</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- /.navbar-collapse -->
+            </div>
+            <!-- /.container -->
+        </nav>
+
+        <!-- Page Header -->
+        <!-- Set your background image for this header on the line below. -->
+        <header class="intro-header" style="background: #0085A1">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <div class="site-heading">
+                            <hr class="small"/>
+                            <span class="subheading">Extrair dados Github</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="" id="loadingGlobal"></div>
+        <!-- Main Content -->
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <h:form id="informacoes">
+
+                        <p:ajaxStatus onstart="document.getElementById('loadingGlobal').classList.add('loading');" 
+                                      onsuccess="document.getElementById('loadingGlobal').classList.remove('loading');" />
+                        <p:messages globalOnly="true"></p:messages>
+                        <div class="post-preview">
+
+
+                            <ufsm:inputText tabindex="1"
+                                            placeholder="Usuário"
+                                            required="true"
+                                            id="inputUsuario"
+                                            maxlength="25"
+                                            name="Usuário"
+                                            sizeField="col-md-12"
+                                            value="#{extrairMBean.usuario}">
+                            </ufsm:inputText>
+                            <ufsm:inputSenha tabindex="2"
+                                             placeholder="Senha"
+                                             required="true"
+                                             id="inputSenha"
+                                             maxlength="25"
+                                             name="Senha"
+                                             sizeField="col-md-12"
+                                             value="#{extrairMBean.senha}">
+                            </ufsm:inputSenha>
+                            <hr/>
+
+
+                            <hr/>
+                        </div>
+                        <div class="post-preview">
+                            <ufsm:inputText tabindex="3"
+                                            placeholder="Proprietario Repositório"
+                                            required="true"
+                                            id="inputProp"
+                                            maxlength="40"
+                                            name="Proprietario Repositório"
+                                            sizeField="col-md-12"
+                                            value="#{extrairMBean.proprietario}">
+                            </ufsm:inputText>
+                            <ufsm:inputText tabindex="4"
+                                            placeholder="Nome Repositório"
+                                            required="true"
+                                            id="inputRepos"
+                                            maxlength="40"
+                                            name="Nome Repositório"
+                                            sizeField="col-md-12"
+                                            value="#{extrairMBean.repositorio}">
+                            </ufsm:inputText>
+                        </div>
+                        <h:commandButton value="Extrair Commit" class="btn btn-warning" actionListener="#{extrairMBean.extrairCommit()}" >
+                            <f:ajax execute="@form" render=":table" />
+                        </h:commandButton>
+                        <p:commandLink value="Extrair Issue" class="btn btn-warning">
+
+                        </p:commandLink>
+                    </h:form>
+                    <hr/>
+                    <h:form id="table">
+                        <p:dataTable id="tabela" widgetVar="tblRegistro" var="object" value="#{extrairMBean.projects}" 
+                                     selectionMode="single" rowKey="#{object}" styleClass="styledatatable" rows="50" paginator="true"
+                                     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="10,25,50,100,500" emptyMessage="Nenhum registro encontrado." 
+                                     currentPageReportTemplate="(Pág. {currentPage}/{totalPages} - {totalRecords} registros)"
+                                     draggableColumns="true"  >
+                            <f:facet name="header">
+                            </f:facet>
+
+
+                            <p:column headerText="Nome" width="50" sortBy="#{object.name}"  style="text-align: left" resizable="true">
+                                <h:outputText value="#{object.name}">
+                                </h:outputText>
+                            </p:column>
+                            <p:column headerText="Criado em" width="50" sortBy="#{object.createdAt}"  style="text-align: left" resizable="true">
+                                <h:outputText value="#{object.createdAt}">
+                                </h:outputText>
+                            </p:column>
+                            <p:column headerText="Proprietário" width="50" sortBy="#{object.owner.login}"  style="text-align: left" resizable="true">
+                                <h:outputText value="#{object.owner.login}">
+                                </h:outputText>
+                            </p:column>
+                        </p:dataTable>
+
+                    </h:form>
+                    <hr/>
+                </div>
+            </div>
+        </div>
+
+        <hr/>
+
+        <!-- Footer -->
+        <!--    <footer>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                            <ul class="list-inline text-center">
+                                <li>
+                                    <a href="#">
+                                        <span class="fa-stack fa-lg">
+                                            <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                                        </span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <span class="fa-stack fa-lg">
+                                            <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                                        </span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <span class="fa-stack fa-lg">
+                                            <i class="fa fa-circle fa-stack-2x"></i>
+                                            <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                                        </span>
+                                    </a>
+                                </li>
+                            </ul>
+                            <p class="copyright text-muted">Copyright &copy; Your Website 2016</p>
+                        </div>
+                    </div>
+                </div>
+            </footer>-->
+
+    </h:body>
+</html>
+

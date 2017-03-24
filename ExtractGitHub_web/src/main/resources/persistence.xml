@@ -8,7 +8,7 @@
         <class>br.edu.ufsm.model.Commit</class>
         <shared-cache-mode>ALL</shared-cache-mode>
         <properties>
-            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/extract_github?zeroDateTimeBehavior=convertToNull?useUnicode=true"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/extract_github?useUnicode=true"/>
             <property name="javax.persistence.jdbc.user" value="root"/>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
             <property name="javax.persistence.jdbc.password" value="root"/>

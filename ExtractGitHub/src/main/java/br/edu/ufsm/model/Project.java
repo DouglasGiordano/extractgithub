@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -42,6 +43,7 @@ public class Project implements Serializable {
     private Repository parent;
     private Repository source;
     private String cloneUrl;
+    @Column(length = 10000)
     private String description;
     private String homepage;
     private String gitUrl;
@@ -62,6 +64,9 @@ public class Project implements Serializable {
     }
 
     public Project(Repository repository) {
+        if(repository == null){
+            return;
+        }
         this.fork = repository.isFork();
         this.hasDownloads = repository.isHasDownloads();
         this.hasIssues = repository.isHasIssues();
