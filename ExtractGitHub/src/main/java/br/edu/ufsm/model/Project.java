@@ -5,6 +5,7 @@
  */
 package br.edu.ufsm.model;
 
+import br.edu.ufsm.persistence.EntityBD;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -14,6 +15,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import org.eclipse.egit.github.core.Repository;
 
@@ -22,7 +24,8 @@ import org.eclipse.egit.github.core.Repository;
  * @author Douglas Giordano
  */
 @Entity
-public class Project implements Serializable {
+@Table(name = "project")
+public class Project implements Serializable, EntityBD {
     @Id
     private long id;
     private boolean fork;
@@ -59,7 +62,8 @@ public class Project implements Serializable {
     private User owner;
     @OneToMany(cascade = CascadeType.ALL)
     private List<Commit> commits;
-
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Issue> issue;
     public Project() {
     }
 
@@ -225,6 +229,13 @@ public class Project implements Serializable {
      * @return the id
      */
     public long getId() {
+        return id;
+    }
+    
+        /**
+     * @return the id
+     */
+    public Object getPk() {
         return id;
     }
 
@@ -499,5 +510,19 @@ public class Project implements Serializable {
      */
     public void setCommits(List<Commit> commits) {
         this.commits = commits;
+    }
+
+    /**
+     * @return the issue
+     */
+    public List<Issue> getIssue() {
+        return issue;
+    }
+
+    /**
+     * @param issue the issue to set
+     */
+    public void setIssue(List<Issue> issue) {
+        this.issue = issue;
     }
 }

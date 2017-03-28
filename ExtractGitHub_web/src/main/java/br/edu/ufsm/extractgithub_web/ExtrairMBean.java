@@ -6,10 +6,12 @@
 package br.edu.ufsm.extractgithub_web;
 
 import br.edu.ufsm.controller.ExtracaoCommit;
+import br.edu.ufsm.controller.ExtracaoIssue;
 import br.edu.ufsm.controller.ExtracaoRepository;
 import br.edu.ufsm.model.Commit;
+import br.edu.ufsm.model.Issue;
 import br.edu.ufsm.model.Project;
-import br.edu.ufsm.persistence.CommitBD;
+import br.edu.ufsm.persistence.ProjectDao;
 import java.io.Serializable;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -39,7 +41,7 @@ public class ExtrairMBean implements Serializable{
      */
     @PostConstruct
     public void init() {
-        projects = CommitBD.list();
+        projects = ProjectDao.list();
     }
     
     
@@ -53,7 +55,7 @@ public class ExtrairMBean implements Serializable{
         Project projeto = ExtracaoRepository.extractRepository(client, repo);
         List<Commit> commits = ExtracaoCommit.extract(client, repo);
         projeto.setCommits(commits);
-        CommitBD.save(projeto);
+        ProjectDao.saveO(projeto);
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Dados do repositório foram extraidos com sucesso.", ""));
         }catch(Exception ex){
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Ocorreu um erro ao extrair os dados: "+ex.getMessage() , ""));
@@ -61,7 +63,24 @@ public class ExtrairMBean implements Serializable{
         }
          System.out.println("Finalizando");
     }
-
+    public void extrairIssue(){
+        try{
+            System.out.println("Iniciando");
+        GitHubClient client = new GitHubClient();
+        client.setCredentials(usuario, senha);
+        RepositoryService service = new RepositoryService();
+        RepositoryId repo = new RepositoryId(proprietario, repositorio);
+        Project projeto = ExtracaoRepository.extractRepository(client, repo);
+        List<Issue> issues = ExtracaoIssue.extract(client, repo);
+        projeto.setIssue(issues);
+        ProjectDao.saveO(projeto);
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Dados do repositório foram extraidos com sucesso.", ""));
+        }catch(Exception ex){
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Ocorreu um erro ao extrair os dados: "+ex.getMessage() , ""));
+         
+        }
+         System.out.println("Finalizando");
+    }
     /**
      * @return the project
      */

@@ -5,26 +5,32 @@
  */
 package br.edu.ufsm.model;
 
+import br.edu.ufsm.persistence.EntityBD;
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 /**
  *
  * @author Douglas Giordano
  */
 @Entity
-public class Commit implements Serializable {
+@Table(name = "commit")
+public class Commit implements Serializable, EntityBD {
 
     @Id
     private String sha;
     private int commentCount;
+    @Lob
     @Column(length = 10000)
     private String message;
     @Embedded
@@ -42,7 +48,7 @@ public class Commit implements Serializable {
 
     public Commit(org.eclipse.egit.github.core.RepositoryCommit commit) {
         this.commentCount = commit.getCommit().getCommentCount();
-        this.message = commit.getCommit().getMessage();
+        this.setMessage(commit.getCommit().getMessage());
         this.stats = new CommitStats(commit.getStats());
         if (commit.getFiles() != null) {
             for (org.eclipse.egit.github.core.CommitFile file : commit.getFiles()) {
@@ -84,7 +90,7 @@ public class Commit implements Serializable {
      * @param message the message to set
      */
     public void setMessage(String message) {
-        this.message = message;
+        this.message = convertToUTF8(message);
     }
 
     /**
@@ -107,7 +113,12 @@ public class Commit implements Serializable {
     public List<CommitFile> getFiles() {
         return files;
     }
-
+        /**
+     * @return the id
+     */
+    public Object getPk() {
+        return sha;
+    }
     /**
      * @param files the files to set
      */
@@ -171,4 +182,9 @@ public class Commit implements Serializable {
         this.committer = committer;
     }
 
+    private String convertToUTF8(String str) {
+         Charset UTF_8 = Charset.forName("UTF-8");
+        byte[] byteArray = str.getBytes(UTF_8);
+        return new String(byteArray, UTF_8);
+    }
 }

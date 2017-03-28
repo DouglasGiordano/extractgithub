@@ -6,14 +6,17 @@
 package br.edu.ufsm.view;
 
 import br.edu.ufsm.controller.ExtracaoCommit;
+import br.edu.ufsm.controller.ExtracaoIssue;
 import br.edu.ufsm.controller.ExtracaoRepository;
 import br.edu.ufsm.model.Commit;
+import br.edu.ufsm.model.Issue;
+import br.edu.ufsm.model.IssueLabel;
 import br.edu.ufsm.model.Project;
-import br.edu.ufsm.persistence.CommitBD;
+import br.edu.ufsm.persistence.IssueDao;
+import br.edu.ufsm.persistence.IssueLabelDao;
+import br.edu.ufsm.persistence.ProjectDao;
 import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import javax.ejb.EJB;
 import org.eclipse.egit.github.core.RepositoryId;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.RepositoryService;
@@ -23,7 +26,8 @@ import org.eclipse.egit.github.core.service.RepositoryService;
  * @author Dougl
  */
 public class ExtractView extends javax.swing.JFrame {
-
+    @EJB
+    private ProjectDao projectDao;
     /**
      * Creates new form ExtractView
      */
@@ -42,6 +46,14 @@ public class ExtractView extends javax.swing.JFrame {
 
         jToolBar1 = new javax.swing.JToolBar();
         jButton1 = new javax.swing.JButton();
+        jSeparator3 = new javax.swing.JToolBar.Separator();
+        jButton3 = new javax.swing.JButton();
+        jSeparator2 = new javax.swing.JToolBar.Separator();
+        jButton2 = new javax.swing.JButton();
+        jSeparator1 = new javax.swing.JToolBar.Separator();
+        jButton4 = new javax.swing.JButton();
+        jSeparator4 = new javax.swing.JToolBar.Separator();
+        jButton5 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         inputUsuario = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
@@ -57,19 +69,71 @@ public class ExtractView extends javax.swing.JFrame {
 
         jToolBar1.setRollover(true);
 
-        jButton1.setText("Extrair Repositório");
+        jButton1.setText("Commit");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
         });
         jToolBar1.add(jButton1);
+        jToolBar1.add(jSeparator3);
+
+        jButton3.setText("Arquivos Commit");
+        jButton3.setFocusable(false);
+        jButton3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton3.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jButton3);
+        jToolBar1.add(jSeparator2);
+
+        jButton2.setText("Issue");
+        jButton2.setFocusable(false);
+        jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jButton2);
+        jToolBar1.add(jSeparator1);
+
+        jButton4.setText("Issue Comentários");
+        jButton4.setFocusable(false);
+        jButton4.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton4.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jButton4);
+        jToolBar1.add(jSeparator4);
+
+        jButton5.setText("Pull Request");
+        jButton5.setFocusable(false);
+        jButton5.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton5.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jButton5);
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Autenticação"));
+
+        inputUsuario.setText("douglasgiordano");
 
         jLabel1.setText("Usuário");
 
         jLabel2.setText("Senha");
+
+        inputSenha.setText("1995panquecas");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -101,7 +165,11 @@ public class ExtractView extends javax.swing.JFrame {
 
         jLabel4.setText("Usuário");
 
+        inputUsuarioProjeto.setText("douglasgiordano");
+
         Nome.setText("Nome");
+
+        inputNomeProjeto.setText("extractgithub");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -166,8 +234,49 @@ public class ExtractView extends javax.swing.JFrame {
         Project projeto = ExtracaoRepository.extractRepository(client, repo);
         List<Commit> commits = ExtracaoCommit.extract(client, repo);
         projeto.setCommits(commits);
-        CommitBD.save(projeto);
+        projectDao.save(projeto);
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+       ProjectDao commit = new ProjectDao();
+       IssueLabelDao issueLabelDao = new IssueLabelDao();
+        GitHubClient client = new GitHubClient();
+        client.setCredentials(inputUsuario.getText(), inputSenha.getText());
+        RepositoryService service = new RepositoryService();
+        RepositoryId repo = new RepositoryId(inputUsuarioProjeto.getText(), inputNomeProjeto.getText());
+        Project projeto = ExtracaoRepository.extractRepository(client, repo);
+        List<Issue> issues = ExtracaoIssue.extract(client, repo);
+        projeto.setIssue(issues);
+        for (Issue issue : projeto.getIssue()) {
+            for(IssueLabel label: issue.getLabels()){
+                issueLabelDao.save(label);
+            }
+        }
+        
+        commit.save(projeto);
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        ProjectDao commit = new ProjectDao();
+        GitHubClient client = new GitHubClient();
+        client.setCredentials(inputUsuario.getText(), inputSenha.getText());
+        RepositoryService service = new RepositoryService();
+        RepositoryId repo = new RepositoryId(inputUsuarioProjeto.getText(), inputNomeProjeto.getText());
+
+        Project projeto = ExtracaoRepository.extractRepository(client, repo);
+        List<Commit> commits = ExtracaoCommit.extract(client, repo);
+        projeto.setCommits(commits);
+        commit.save(projeto);
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        IssueDao issue = new IssueDao();
+        List<Issue> issues = issue.findAll(Issue.class);
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton5ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -180,7 +289,7 @@ public class ExtractView extends javax.swing.JFrame {
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Windows".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
@@ -211,11 +320,19 @@ public class ExtractView extends javax.swing.JFrame {
     private javax.swing.JTextField inputUsuario;
     private javax.swing.JTextField inputUsuarioProjeto;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JToolBar.Separator jSeparator1;
+    private javax.swing.JToolBar.Separator jSeparator2;
+    private javax.swing.JToolBar.Separator jSeparator3;
+    private javax.swing.JToolBar.Separator jSeparator4;
     private javax.swing.JToolBar jToolBar1;
     // End of variables declaration//GEN-END:variables
 }

@@ -33,4 +33,24 @@ public class ExtracaoCommit {
         }
         return list;
     }
+
+    public static List<Commit> extract(GitHubClient client, RepositoryId repositoryId, List<Commit> commits) {
+        List<Commit> list = new ArrayList<>();
+        try {
+            //Basic authentication
+            CommitService commitService = new CommitService(client);
+            for (Commit commitL : commits) {
+                if(commitL.getFiles() == null){
+                    RepositoryCommit commit = commitService.getCommit(repositoryId, commitL.getSha());
+                list.add(new Commit(commit));
+                } else {
+                    list.add(commitL);
+                }
+                
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(ExtracaoIssue.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return list;
+    }
 }
