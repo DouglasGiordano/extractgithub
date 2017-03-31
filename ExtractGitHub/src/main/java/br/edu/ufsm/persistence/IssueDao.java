@@ -36,9 +36,4 @@ public class IssueDao extends NewPersistence<Issue, Integer> {
     public Issue getObject() {
         return this.object;
     }
-
-    @Override
-    public EntityManager getEntityManager() {
-        return this.entityManager;
-    }
 }

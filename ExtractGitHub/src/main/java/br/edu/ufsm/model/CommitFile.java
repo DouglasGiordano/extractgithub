@@ -6,10 +6,10 @@
 package br.edu.ufsm.model;
 
 import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 /**
@@ -19,23 +19,24 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "commit_file")
 public class CommitFile implements Serializable {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private String sha;
     private int additions;
     private int changes;
     private int deletions;
     private String blobUrl;
     private String filename;
+    @Lob
+    @Column(length = 5000)
     private String patch;
     private String rawUrl;
-    private String sha;
     private String status;
 
     public CommitFile() {
     }
 
-    public CommitFile(org.eclipse.egit.github.core.CommitFile commitFile){
+    public CommitFile(org.eclipse.egit.github.core.CommitFile commitFile) {
         this.additions = commitFile.getAdditions();
         this.changes = commitFile.getChanges();
         this.deletions = commitFile.getDeletions();
@@ -46,7 +47,7 @@ public class CommitFile implements Serializable {
         this.sha = commitFile.getSha();
         this.status = commitFile.getStatus();
     }
-    
+
     /**
      * @return the additions
      */
@@ -171,19 +172,5 @@ public class CommitFile implements Serializable {
      */
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    /**
-     * @return the id
-     */
-    public int getId() {
-        return id;
-    }
-
-    /**
-     * @param id the id to set
-     */
-    public void setId(int id) {
-        this.id = id;
     }
 }

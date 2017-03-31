@@ -27,9 +27,4 @@ public class IssueLabelDao extends NewPersistence<IssueLabel, Integer> {
     public IssueLabel getObject() {
         return this.object;
     }
-
-    @Override
-    public EntityManager getEntityManager() {
-        return EntityManagerFactory.entityManager.createEntityManager();
-    }
 }

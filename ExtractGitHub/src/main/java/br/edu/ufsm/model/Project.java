@@ -235,6 +235,7 @@ public class Project implements Serializable, EntityBD {
         /**
      * @return the id
      */
+    @Override
     public Object getPk() {
         return id;
     }

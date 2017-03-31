@@ -1,7 +1,5 @@
 package br.edu.ufsm.persistence;
 
-
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +12,9 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
-import br.edu.ufsm.persistence.EntityBD;
+import java.util.ArrayList;
+import java.util.Collection;
+import javax.persistence.Persistence;
 
 /**
  * Classe resolve os métodos básicos de cadastro (CRUD) com API da
@@ -27,11 +27,12 @@ public abstract class NewPersistence<T extends EntityBD, PK extends Object> {
 //    @PersistenceContext
 //    private EntityManager entityManager;
     protected T object;
+    private static EntityManager entityManager;
 
     public abstract void init();
 
     public T findByCriteria(String column, Object value) {
-        Session session = (Session) getEntityManager().getDelegate();
+        Session session = (Session) getEntity().getDelegate();
         try {
             return (T) session.createCriteria(this.getObject().getClass())
                     .add(Restrictions.eq(column, value))
@@ -56,7 +57,7 @@ public abstract class NewPersistence<T extends EntityBD, PK extends Object> {
     }
 
     public Criteria getCriteria(Class classe) {
-        Session session = (Session) this.getEntityManager().getDelegate();
+        Session session = (Session) this.getEntity().getDelegate();
         Object objeto = null;
         Transaction tx = null;
         Criteria criteria = null;
@@ -75,7 +76,7 @@ public abstract class NewPersistence<T extends EntityBD, PK extends Object> {
     }
 
     public List getObjects(Criteria criteria) {
-        Session session = (Session) this.getEntityManager().getDelegate();
+        Session session = (Session) this.getEntity().getDelegate();
         List objects = (List) criteria.list();
 //        session.close();
         return objects;
@@ -94,7 +95,7 @@ public abstract class NewPersistence<T extends EntityBD, PK extends Object> {
     }
 
     public Object getObject(Criteria criteria) {
-        Session session = (Session) this.getEntityManager().getDelegate();
+        Session session = (Session) this.getEntity().getDelegate();
         Object object = criteria.uniqueResult();
         //session.close();
         return object;
@@ -112,7 +113,7 @@ public abstract class NewPersistence<T extends EntityBD, PK extends Object> {
     }
 
     public EntityBD getByCriteria(String column, Object value, Class myClass) {
-        Session session = (Session) this.getEntityManager().getDelegate();
+        Session session = (Session) this.getEntity().getDelegate();
         try {
             if (myClass != null) {
                 EntityBD obj = (EntityBD) session.createCriteria(myClass).add(Restrictions.eq(column, value)).uniqueResult();
@@ -132,19 +133,51 @@ public abstract class NewPersistence<T extends EntityBD, PK extends Object> {
 
     public T save(T myEntity) {
         this.object = myEntity;
-        if (this.getObject().getPk() != null) {
-            T entity = getEntityManager().merge(this.getObject());
-            return entity;
+        EntityManager em = getEntity();
+        em.getTransaction().begin();
+        T entity = em.merge(myEntity);
+        em.getTransaction().commit();
+        return myEntity;
+    }
+
+    public EntityManager getEntity() {
+        if (entityManager == null) {
+            return Persistence.createEntityManagerFactory("ExtractGitHub").createEntityManager();
         } else {
-            getEntityManager().persist(this.getObject());
-            T entity = (getById((PK) this.getObject().getPk()));
-            return entity;
+            return entityManager;
+        }
+    }
+
+    public Collection<T> bulkSave(Collection<T> entities) {
+        EntityManager em = getEntity();
+        final List<T> savedEntities = new ArrayList<T>(entities.size());
+        int i = 0;
+        int batchSize = 100;
+        for (T t : entities) {
+            savedEntities.add(persistOrMerge(t));
+            i++;
+            if (i % batchSize == 0) {
+                // Flush a batch of inserts and release memory.
+                em.flush();
+                em.clear();
+            }
+        }
+        return savedEntities;
+    }
+
+    private T persistOrMerge(T t) {
+        EntityManager em = getEntity();
+        if (t.getPk() == null) {
+            em.persist(t);
+            return t;
+        } else {
+            return em.merge(t);
         }
     }
 
     public boolean remove(T myEntity) {
         this.object = myEntity;
-        getEntityManager().remove(getEntityManager().merge(this.getObject()));
+        getEntity().remove(getEntity().merge(this.getObject()));
         if (getById((PK) this.getObject().getPk()) == null) {
             init();
             return true;
@@ -155,13 +188,13 @@ public abstract class NewPersistence<T extends EntityBD, PK extends Object> {
     }
 
     public T getById(PK id) {
-        return (T) getEntityManager().find(this.getObject().getClass(), id);
+        return (T) getEntity().find(this.getObject().getClass(), id);
     }
 
     public List<T> findAll() {
-        CriteriaQuery cq = getEntityManager().getCriteriaBuilder().createQuery();
+        CriteriaQuery cq = getEntity().getCriteriaBuilder().createQuery();
         cq.select(cq.from(this.getObject().getClass()));
-        return getEntityManager().createQuery(cq).getResultList();
+        return getEntity().createQuery(cq).getResultList();
     }
 
     public List findAll(Class classe) {
@@ -171,24 +204,23 @@ public abstract class NewPersistence<T extends EntityBD, PK extends Object> {
     }
 
     public List<T> findRange(int[] range) {
-        CriteriaQuery cq = getEntityManager().getCriteriaBuilder().createQuery();
+        CriteriaQuery cq = getEntity().getCriteriaBuilder().createQuery();
         cq.select(cq.from(this.getObject().getClass()));
-        Query q = getEntityManager().createQuery(cq);
+        Query q = getEntity().createQuery(cq);
         q.setMaxResults(range[1] - range[0]);
         q.setFirstResult(range[0]);
         return q.getResultList();
     }
 
     public int count() {
-        CriteriaQuery cq = getEntityManager().getCriteriaBuilder().createQuery();
+        CriteriaQuery cq = getEntity().getCriteriaBuilder().createQuery();
         Root<T> rt = cq.from(this.getObject().getClass());
-        cq.select(getEntityManager().getCriteriaBuilder().count(rt));
-        Query q = getEntityManager().createQuery(cq);
+        cq.select(getEntity().getCriteriaBuilder().count(rt));
+        Query q = getEntity().createQuery(cq);
         return ((Long) q.getSingleResult()).intValue();
     }
 
     //<editor-fold defaultstate="collapsed" desc="GET/SET">
-    public abstract EntityManager getEntityManager();
 
     public abstract T getObject();
 

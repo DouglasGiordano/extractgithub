@@ -6,19 +6,18 @@
 package br.edu.ufsm.persistence;
 
 import br.edu.ufsm.model.Commit;
+import java.util.List;
 import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
-import javax.persistence.Persistence;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContextType;
+import org.hibernate.Criteria;
+import org.hibernate.criterion.Restrictions;
 
 /**
  *
  * @author Dougl
  */
-public class CommiDao extends NewPersistence<Commit, Integer> {
+public class CommitDao extends NewPersistence<Commit, Integer> {
 
-    public CommiDao() {
+    public CommitDao() {
         
     }
 
@@ -32,9 +31,11 @@ public class CommiDao extends NewPersistence<Commit, Integer> {
     public Commit getObject() {
         return this.object;
     }
-
-    @Override
-    public EntityManager getEntityManager() {
-        return EntityManagerFactory.entityManager.createEntityManager();
+    
+    public List<Commit> getCommits(long idProject){
+        Criteria criteria = getCriteria(Commit.class)
+        .createAlias("project", "p")
+        .add(Restrictions.eq("p.id", idProject));
+        return criteria.list();
     }
 }

@@ -8,7 +8,10 @@ package br.edu.ufsm.model;
 import br.edu.ufsm.persistence.EntityBD;
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -51,6 +54,7 @@ public class Commit implements Serializable, EntityBD {
         this.setMessage(commit.getCommit().getMessage());
         this.stats = new CommitStats(commit.getStats());
         if (commit.getFiles() != null) {
+            files = new ArrayList<>();
             for (org.eclipse.egit.github.core.CommitFile file : commit.getFiles()) {
                 files.add(new CommitFile(file));
             }
@@ -90,7 +94,26 @@ public class Commit implements Serializable, EntityBD {
      * @param message the message to set
      */
     public void setMessage(String message) {
-        this.message = convertToUTF8(message);
+        String EMOJI_RANGE_REGEX
+                = "[\uD83C\uDF00-\uD83D\uDDFF]|[\uD83D\uDE00-\uD83D\uDE4F]|[\uD83D\uDE80-\uD83D\uDEFF]|[\u2600-\u26FF]|[\u2700-\u27BF]";
+        Pattern PATTERN = Pattern.compile(EMOJI_RANGE_REGEX);
+
+        /**
+         * Finds and removes emojies from @param input
+         *
+         * @param input the input string potentially containing emojis (comes as
+         * unicode stringfied)
+         * @return input string with emojis replaced
+         */
+        String input = message;
+        Matcher matcher = PATTERN.matcher(input);
+        StringBuffer sb = new StringBuffer();
+        while (matcher.find()) {
+            matcher.appendReplacement(sb, "");
+        }
+        matcher.appendTail(sb);
+        message = sb.toString();
+        this.message = message;
     }
 
     /**
@@ -113,12 +136,14 @@ public class Commit implements Serializable, EntityBD {
     public List<CommitFile> getFiles() {
         return files;
     }
-        /**
+
+    /**
      * @return the id
      */
     public Object getPk() {
         return sha;
     }
+
     /**
      * @param files the files to set
      */
@@ -183,7 +208,7 @@ public class Commit implements Serializable, EntityBD {
     }
 
     private String convertToUTF8(String str) {
-         Charset UTF_8 = Charset.forName("UTF-8");
+        Charset UTF_8 = Charset.forName("UTF-8");
         byte[] byteArray = str.getBytes(UTF_8);
         return new String(byteArray, UTF_8);
     }

@@ -3,6 +3,7 @@
 package br.edu.ufsm.controller;
 
 import br.edu.ufsm.model.Commit;
+import br.edu.ufsm.persistence.CommitDao;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,20 +37,24 @@ public class ExtracaoCommit {
 
     public static List<Commit> extract(GitHubClient client, RepositoryId repositoryId, List<Commit> commits) {
         List<Commit> list = new ArrayList<>();
-        try {
-            //Basic authentication
-            CommitService commitService = new CommitService(client);
-            for (Commit commitL : commits) {
-                if(commitL.getFiles() == null){
+        CommitDao commitDao = new CommitDao();
+        //Basic authentication
+        CommitService commitService = new CommitService(client);
+        for (Commit commitL : commits) {
+            if (commitL.getFiles() == null || commitL.getFiles().isEmpty()) {
+                try {
+                    System.out.println("Baixando commit: " + commitL.getUrl());
                     RepositoryCommit commit = commitService.getCommit(repositoryId, commitL.getSha());
-                list.add(new Commit(commit));
-                } else {
-                    list.add(commitL);
+                    Commit commitD = new Commit(commit);
+                    list.add(commitD);
+                    commitDao.save(commitD);
+                } catch (Exception ex) {
+                    System.out.println("Impossivel baixar commit: " + commitL.getUrl());
                 }
-                
+            } else {
+                list.add(commitL);
             }
-        } catch (IOException ex) {
-            Logger.getLogger(ExtracaoIssue.class.getName()).log(Level.SEVERE, null, ex);
+
         }
         return list;
     }

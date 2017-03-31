@@ -62,7 +62,7 @@ public class Issue implements Serializable, EntityBD {
     private User assignee;
     @ManyToOne(cascade = CascadeType.ALL)
     private User user;
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.REFRESH)
     private List<IssueLabel> labels;
         @OneToMany(cascade = CascadeType.ALL)
     private List<IssueComment> issueComments;
