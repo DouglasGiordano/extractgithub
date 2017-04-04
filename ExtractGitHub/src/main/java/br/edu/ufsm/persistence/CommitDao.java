@@ -8,17 +8,16 @@ package br.edu.ufsm.persistence;
 import br.edu.ufsm.model.Commit;
 import java.util.List;
 import javax.annotation.PostConstruct;
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Restrictions;
+import javax.persistence.Query;
 
 /**
  *
  * @author Dougl
  */
-public class CommitDao extends NewPersistence<Commit, Integer> {
+public class CommitDao extends NewPersistence<Commit, String> {
 
     public CommitDao() {
-        
+
     }
 
     @Override
@@ -31,11 +30,12 @@ public class CommitDao extends NewPersistence<Commit, Integer> {
     public Commit getObject() {
         return this.object;
     }
-    
-    public List<Commit> getCommits(long idProject){
-        Criteria criteria = getCriteria(Commit.class)
-        .createAlias("project", "p")
-        .add(Restrictions.eq("p.id", idProject));
-        return criteria.list();
+
+    public List<String> getCommits(long idProject) {
+        Query q = getEntity().createNativeQuery("SELECT DISTINCT(sha) "
+                + "FROM commit "
+                + "INNER JOIN project_commit ON commit.sha = commits_sha  "
+                + "LEFT JOIN commit_commit_file ON commit.sha = commit_commit_file.commit_sha where isnull(files_id) and project_id = " + idProject + "");
+        return q.getResultList();
     }
 }

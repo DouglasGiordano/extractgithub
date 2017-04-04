@@ -3,7 +3,9 @@
 package br.edu.ufsm.controller;
 
 import br.edu.ufsm.model.Commit;
+import br.edu.ufsm.model.CommitFile;
 import br.edu.ufsm.persistence.CommitDao;
+import br.edu.ufsm.persistence.CommitFileDao;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,27 +37,27 @@ public class ExtracaoCommit {
         return list;
     }
 
-    public static List<Commit> extract(GitHubClient client, RepositoryId repositoryId, List<Commit> commits) {
-        List<Commit> list = new ArrayList<>();
+    public static void extract(GitHubClient client, RepositoryId repositoryId, List<String> commits) {
         CommitDao commitDao = new CommitDao();
         //Basic authentication
         CommitService commitService = new CommitService(client);
-        for (Commit commitL : commits) {
-            if (commitL.getFiles() == null || commitL.getFiles().isEmpty()) {
+        Commit commitD;
+        RepositoryCommit commit;
+        for (String commitL : commits) {
+            try {
+                commit = commitService.getCommit(repositoryId, commitL);
+                commitD = new Commit(commit);
+                commitDao.save(commitD);
+            } catch (Exception ex) {
+                System.out.println("Impossivel baixar commit: " + commitL + "\n\n" + ex.getMessage());
+            } catch (OutOfMemoryError ex) {
+                System.out.println("Estouro de Memória: " + commitL + "\n\n" + ex.getMessage());
                 try {
-                    System.out.println("Baixando commit: " + commitL.getUrl());
-                    RepositoryCommit commit = commitService.getCommit(repositoryId, commitL.getSha());
-                    Commit commitD = new Commit(commit);
-                    list.add(commitD);
-                    commitDao.save(commitD);
-                } catch (Exception ex) {
-                    System.out.println("Impossivel baixar commit: " + commitL.getUrl());
+                    Thread.sleep(10000);
+                } catch (InterruptedException ex2) {
+                    System.out.println("Puxa, estava dormindo! Você me acordou"+ex2);
                 }
-            } else {
-                list.add(commitL);
             }
-
         }
-        return list;
     }
 }

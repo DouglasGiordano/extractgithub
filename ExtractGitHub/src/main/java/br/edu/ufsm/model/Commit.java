@@ -16,6 +16,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
@@ -38,7 +39,7 @@ public class Commit implements Serializable, EntityBD {
     private String message;
     @Embedded
     private CommitStats stats;
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CommitFile> files;
     private String url;
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
@@ -51,15 +52,16 @@ public class Commit implements Serializable, EntityBD {
 
     public Commit(org.eclipse.egit.github.core.RepositoryCommit commit) {
         this.commentCount = commit.getCommit().getCommentCount();
+        this.sha = commit.getSha();
         this.setMessage(commit.getCommit().getMessage());
         this.stats = new CommitStats(commit.getStats());
         if (commit.getFiles() != null) {
             files = new ArrayList<>();
             for (org.eclipse.egit.github.core.CommitFile file : commit.getFiles()) {
-                files.add(new CommitFile(file));
+                files.add(new CommitFile(file, this.sha));
             }
         }
-        this.sha = commit.getSha();
+
         this.url = commit.getUrl();
         this.author = new User(commit.getAuthor());
         this.committer = new User(commit.getCommitter());

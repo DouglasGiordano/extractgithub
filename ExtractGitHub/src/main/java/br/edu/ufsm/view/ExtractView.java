@@ -262,8 +262,8 @@ public class ExtractView extends javax.swing.JFrame {
     private void btnArquivosCommitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnArquivosCommitActionPerformed
         autenticate();
         Project projeto = ExtracaoRepository.extractRepository(client, repo);
-        List<Commit> commits = projectDao.getById(projeto.getId()).getCommits();
-        List<Commit> commitsFile = ExtracaoCommit.extract(client, repo, commits);
+        List<String> commits = commitDao.getCommits(projeto.getId());
+        ExtracaoCommit.extract(client, repo, commits);
 //        commitDao.bulkSave(commitsFile);
     }//GEN-LAST:event_btnArquivosCommitActionPerformed
 

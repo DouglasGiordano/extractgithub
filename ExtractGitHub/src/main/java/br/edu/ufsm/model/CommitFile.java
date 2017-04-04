@@ -5,6 +5,7 @@
  */
 package br.edu.ufsm.model;
 
+import br.edu.ufsm.persistence.EntityBD;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,9 +19,11 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "commit_file")
-public class CommitFile implements Serializable {
+public class CommitFile implements Serializable, EntityBD {
 
     @Id
+    @Column(length = 500)
+    private String id;
     private String sha;
     private int additions;
     private int changes;
@@ -28,15 +31,16 @@ public class CommitFile implements Serializable {
     private String blobUrl;
     private String filename;
     @Lob
-    @Column(length = 5000)
+    @Column(length = 10000)
     private String patch;
+    @Column(length = 500)
     private String rawUrl;
     private String status;
 
     public CommitFile() {
     }
 
-    public CommitFile(org.eclipse.egit.github.core.CommitFile commitFile) {
+    public CommitFile(org.eclipse.egit.github.core.CommitFile commitFile, String shaCommit) {
         this.additions = commitFile.getAdditions();
         this.changes = commitFile.getChanges();
         this.deletions = commitFile.getDeletions();
@@ -46,6 +50,7 @@ public class CommitFile implements Serializable {
         this.rawUrl = commitFile.getRawUrl();
         this.sha = commitFile.getSha();
         this.status = commitFile.getStatus();
+        this.id = this.status+this.changes+this.deletions+this.additions+ shaCommit + this.filename+ this.sha;
     }
 
     /**
@@ -154,6 +159,13 @@ public class CommitFile implements Serializable {
     }
 
     /**
+     * @return the sha
+     */
+    public Object getPk() {
+        return this.rawUrl;
+    }
+
+    /**
      * @param sha the sha to set
      */
     public void setSha(String sha) {
@@ -172,5 +184,19 @@ public class CommitFile implements Serializable {
      */
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    /**
+     * @return the id
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(String id) {
+        this.id = id;
     }
 }

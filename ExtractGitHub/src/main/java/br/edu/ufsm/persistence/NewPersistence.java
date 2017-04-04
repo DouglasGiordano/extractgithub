@@ -188,6 +188,7 @@ public abstract class NewPersistence<T extends EntityBD, PK extends Object> {
     }
 
     public T getById(PK id) {
+        init();
         return (T) getEntity().find(this.getObject().getClass(), id);
     }
 
