@@ -6,6 +6,7 @@
 package br.edu.ufsm.model;
 
 import br.edu.ufsm.persistence.EntityBD;
+import com.vdurmont.emoji.EmojiParser;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -96,26 +97,10 @@ public class Commit implements Serializable, EntityBD {
      * @param message the message to set
      */
     public void setMessage(String message) {
-        String EMOJI_RANGE_REGEX
-                = "[\uD83C\uDF00-\uD83D\uDDFF]|[\uD83D\uDE00-\uD83D\uDE4F]|[\uD83D\uDE80-\uD83D\uDEFF]|[\u2600-\u26FF]|[\u2700-\u27BF]";
-        Pattern PATTERN = Pattern.compile(EMOJI_RANGE_REGEX);
-
-        /**
-         * Finds and removes emojies from @param input
-         *
-         * @param input the input string potentially containing emojis (comes as
-         * unicode stringfied)
-         * @return input string with emojis replaced
-         */
-        String input = message;
-        Matcher matcher = PATTERN.matcher(input);
-        StringBuffer sb = new StringBuffer();
-        while (matcher.find()) {
-            matcher.appendReplacement(sb, "");
-        }
-        matcher.appendTail(sb);
-        message = sb.toString();
-        this.message = message;
+        String result = EmojiParser.removeAllEmojis(message);
+        System.out.println("Carregando mensagem commit: "+this.sha);
+        System.out.println(result+"\n");
+        this.message = result;
     }
 
     /**
