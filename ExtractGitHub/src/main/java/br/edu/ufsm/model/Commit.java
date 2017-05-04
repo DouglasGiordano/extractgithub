@@ -8,11 +8,14 @@ package br.edu.ufsm.model;
 import br.edu.ufsm.persistence.EntityBD;
 import com.vdurmont.emoji.EmojiParser;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -40,7 +43,27 @@ public class Commit implements Serializable, EntityBD {
     private String message;
     @Embedded
     private CommitStats stats;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+
+    @AttributeOverrides({
+        @AttributeOverride(name = "date", column = @Column(name = "date_author_commit"))
+        ,
+        @AttributeOverride(name = "email", column = @Column(name = "email_author_commit"))
+        ,
+        @AttributeOverride(name = "name", column = @Column(name = "name_author_commit"))
+    })
+    @Embedded
+    private CommitUser authorCommit;
+
+    @AttributeOverrides({
+        @AttributeOverride(name = "date", column = @Column(name = "date_commiter_commit"))
+        ,
+        @AttributeOverride(name = "email", column = @Column(name = "email_commiter_commit"))
+        ,
+        @AttributeOverride(name = "name", column = @Column(name = "name_commiter_commit"))
+    })
+    @Embedded
+    private CommitUser commiterCommit;
+    @OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = false, fetch = FetchType.LAZY)
     private List<CommitFile> files;
     private String url;
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
@@ -60,16 +83,24 @@ public class Commit implements Serializable, EntityBD {
             files = new ArrayList<>();
             for (org.eclipse.egit.github.core.CommitFile file : commit.getFiles()) {
                 files.add(new CommitFile(file, this.sha));
+                file.setPatch(null);
             }
         }
 
         this.url = commit.getUrl();
-        this.author = new User(commit.getAuthor());
-        this.committer = new User(commit.getCommitter());
-        if (author.getId() == 0 && committer.getId() == 0) {
-            this.author = null;
-            this.committer = null;
+        if (commit.getAuthor() != null) {
+            this.author = new User(commit.getAuthor());
         }
+        if (commit.getCommitter() != null) {
+            this.committer = new User(commit.getCommitter());
+        }
+        if (commit.getCommit().getCommitter() != null) {
+            commiterCommit = new CommitUser(commit.getCommit().getCommitter());
+        }
+        if (commit.getCommit().getAuthor() != null) {
+            authorCommit = new CommitUser(commit.getCommit().getAuthor());
+        }
+
     }
 
     /**
@@ -92,15 +123,24 @@ public class Commit implements Serializable, EntityBD {
     public String getMessage() {
         return message;
     }
+    public static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
+    public static final Charset UTF_8 = Charset.forName("UTF-8");
 
     /**
      * @param message the message to set
      */
     public void setMessage(String message) {
-        String result = EmojiParser.removeAllEmojis(message);
-        System.out.println("Carregando mensagem commit: "+this.sha);
-        System.out.println(result+"\n");
-        this.message = result;
+        try {
+            String stringUtf8 = new String(message.getBytes("UTF-8"));
+            byte[] ptext = stringUtf8.getBytes(ISO_8859_1);
+            String value = new String(ptext, UTF_8);
+            String result = EmojiParser.removeAllEmojis(value);
+            this.message = result;
+
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(Commit.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -198,5 +238,33 @@ public class Commit implements Serializable, EntityBD {
         Charset UTF_8 = Charset.forName("UTF-8");
         byte[] byteArray = str.getBytes(UTF_8);
         return new String(byteArray, UTF_8);
+    }
+
+    /**
+     * @return the authorCommit
+     */
+    public CommitUser getAuthorCommit() {
+        return authorCommit;
+    }
+
+    /**
+     * @param authorCommit the authorCommit to set
+     */
+    public void setAuthorCommit(CommitUser authorCommit) {
+        this.authorCommit = authorCommit;
+    }
+
+    /**
+     * @return the commiterCommit
+     */
+    public CommitUser getCommiterCommit() {
+        return commiterCommit;
+    }
+
+    /**
+     * @param commiterCommit the commiterCommit to set
+     */
+    public void setCommiterCommit(CommitUser commiterCommit) {
+        this.commiterCommit = commiterCommit;
     }
 }

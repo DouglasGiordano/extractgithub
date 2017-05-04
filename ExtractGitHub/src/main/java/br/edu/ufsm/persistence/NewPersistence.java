@@ -132,11 +132,8 @@ public abstract class NewPersistence<T extends EntityBD, PK extends Object> {
     }
 
     public T save(T myEntity) {
-        this.object = myEntity;
         EntityManager em = getEntity();
-        em.getTransaction().begin();
         T entity = em.merge(myEntity);
-        em.getTransaction().commit();
         return myEntity;
     }
 
@@ -177,19 +174,20 @@ public abstract class NewPersistence<T extends EntityBD, PK extends Object> {
 
     public boolean remove(T myEntity) {
         this.object = myEntity;
-        getEntity().remove(getEntity().merge(this.getObject()));
-        if (getById((PK) this.getObject().getPk()) == null) {
-            init();
+        try {
+            getEntity().remove(myEntity);
             return true;
-        } else {
-            init();
+        } catch (Exception ex) {
             return false;
         }
     }
 
-    public T getById(PK id) {
-        init();
-        return (T) getEntity().find(this.getObject().getClass(), id);
+    public T getById(PK id, Class classe) {
+        Object o = getEntity().find(classe, id);
+        if(o != null){
+            return (T) o;
+        }
+        return null;
     }
 
     public List<T> findAll() {
@@ -222,7 +220,6 @@ public abstract class NewPersistence<T extends EntityBD, PK extends Object> {
     }
 
     //<editor-fold defaultstate="collapsed" desc="GET/SET">
-
     public abstract T getObject();
 
     public void setObject(T object) {

@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
-  <persistence-unit name="ExtractGitHub" transaction-type="RESOURCE_LOCAL">
+  <persistence-unit name="ExtractGitHub" transaction-type="JTA">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
+    <jta-data-source>java:/ExtractGithubDS</jta-data-source>
     <class>br.edu.ufsm.model.Project</class>
     <class>br.edu.ufsm.model.User</class>
     <class>br.edu.ufsm.model.CommitFile</class>
+    <class>br.edu.ufsm.model.CommitStats</class>
+    <class>br.edu.ufsm.model.CommitUser</class>
     <class>br.edu.ufsm.model.Commit</class>
     <class>br.edu.ufsm.model.Issue</class>
     <class>br.edu.ufsm.model.IssueLabel</class>
@@ -13,17 +16,15 @@
     <class>br.edu.ufsm.model.Milestone</class>
     <shared-cache-mode>ALL</shared-cache-mode>
     <properties>
-      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/extract_github?zeroDateTimeBehavior=convertToNull&amp;useUnicode=yes&amp;characterEncoding=utf8"/>
-      <property name="javax.persistence.jdbc.user" value="root"/>
       <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
-      <property name="javax.persistence.jdbc.password" value="root"/>
+      <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
       <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
       <property name="hibernate.hbm2ddl.auto" value="update"/>
+      <property name="hibernate.connection.pool_size"  value="100"/>
       <property name="hibernate.event.merge.entity_copy_observer" value="allow"/>
       <property name="hibernate.connection.characterEncoding" value="utf8"/>
       <property name="hibernate.connection.useUnicode" value="true"/>
-      <property name="hibernate.connection.charSet" value="utf8mb4"/>
-       <property name="hibernate.hbm2ddl.import_files" value="init.sql" />
+      <property name="hibernate.connection.charSet" value="utf8_general_ci"/>
     </properties>
   </persistence-unit>
 </persistence>

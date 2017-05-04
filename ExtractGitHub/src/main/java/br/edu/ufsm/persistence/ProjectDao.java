@@ -6,15 +6,23 @@
 package br.edu.ufsm.persistence;
 
 import br.edu.ufsm.model.Project;
-import java.util.List;
 import javax.annotation.PostConstruct;
+import javax.ejb.LocalBean;
+import javax.ejb.Stateful;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceContextType;
 
 /**
  *
- * @author Dougl
+ * @author Douglas Giordano
  */
+@Stateful
+@LocalBean
 public class ProjectDao extends NewPersistence<Project, Object> {
+
+    @PersistenceContext(unitName = "ExtractGitHub", name = "ExtractGitHub", type = PersistenceContextType.TRANSACTION)
+    private EntityManager entityManager;
 
     @Override
     @PostConstruct
@@ -29,5 +37,10 @@ public class ProjectDao extends NewPersistence<Project, Object> {
         } else {
             return this.object;
         }
+    }
+
+    @Override
+    public EntityManager getEntity() {
+        return this.entityManager;
     }
 }

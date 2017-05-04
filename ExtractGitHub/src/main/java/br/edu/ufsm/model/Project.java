@@ -60,7 +60,7 @@ public class Project implements Serializable, EntityBD {
     private String url;
     @ManyToOne(cascade = CascadeType.ALL)
     private User owner;
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = {CascadeType.PERSIST,CascadeType.REFRESH, CascadeType.MERGE})
     private List<Commit> commits;
     @OneToMany(cascade = CascadeType.ALL)
     private List<Issue> issue;

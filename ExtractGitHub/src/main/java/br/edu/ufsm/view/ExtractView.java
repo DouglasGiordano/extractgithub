@@ -9,6 +9,7 @@ import br.edu.ufsm.controller.ExtracaoCommit;
 import br.edu.ufsm.controller.ExtracaoIssue;
 import br.edu.ufsm.controller.ExtracaoRepository;
 import br.edu.ufsm.model.Commit;
+import br.edu.ufsm.model.GeradorCombinacoes;
 import br.edu.ufsm.model.Issue;
 import br.edu.ufsm.model.Project;
 import br.edu.ufsm.persistence.CommitDao;
@@ -60,6 +61,7 @@ public class ExtractView extends javax.swing.JFrame {
         btnIssueComentarios = new javax.swing.JButton();
         jSeparator4 = new javax.swing.JToolBar.Separator();
         btnPullRequest = new javax.swing.JButton();
+        gerarRedeArquivosUsuario = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         inputUsuario = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
@@ -130,6 +132,12 @@ public class ExtractView extends javax.swing.JFrame {
             }
         });
         jToolBar1.add(btnPullRequest);
+
+        gerarRedeArquivosUsuario.setText("Gerar Rede Arquivos - Usuário");
+        gerarRedeArquivosUsuario.setFocusable(false);
+        gerarRedeArquivosUsuario.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        gerarRedeArquivosUsuario.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar1.add(gerarRedeArquivosUsuario);
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Autenticação"));
 
@@ -263,7 +271,7 @@ public class ExtractView extends javax.swing.JFrame {
         autenticate();
         Project projeto = ExtracaoRepository.extractRepository(client, repo);
         List<String> commits = commitDao.getCommits(projeto.getId());
-        ExtracaoCommit.extract(client, repo, commits);
+        ExtracaoCommit.extract(client, repo, commits, new CommitDao());
 //        commitDao.bulkSave(commitsFile);
     }//GEN-LAST:event_btnArquivosCommitActionPerformed
 
@@ -273,7 +281,10 @@ public class ExtractView extends javax.swing.JFrame {
     }//GEN-LAST:event_btnIssueComentariosActionPerformed
 
     private void btnPullRequestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPullRequestActionPerformed
-        // TODO add your handling code here:
+        autenticate();
+        Project projeto = ExtracaoRepository.extractRepository(client, repo);
+        GeradorCombinacoes gerador = new GeradorCombinacoes(projeto.getName(), "#31948c", projeto.getId());
+//        gerador.execute();
     }//GEN-LAST:event_btnPullRequestActionPerformed
 
     /**
@@ -318,6 +329,7 @@ public class ExtractView extends javax.swing.JFrame {
     private javax.swing.JButton btnIssue;
     private javax.swing.JButton btnIssueComentarios;
     private javax.swing.JButton btnPullRequest;
+    private javax.swing.JButton gerarRedeArquivosUsuario;
     private javax.swing.JTextField inputNomeProjeto;
     private javax.swing.JPasswordField inputSenha;
     private javax.swing.JTextField inputUsuario;

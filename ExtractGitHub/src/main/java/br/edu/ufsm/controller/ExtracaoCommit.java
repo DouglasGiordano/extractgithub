@@ -4,6 +4,7 @@ package br.edu.ufsm.controller;
 
 import br.edu.ufsm.model.Commit;
 import br.edu.ufsm.model.CommitFile;
+import br.edu.ufsm.model.CommitUser;
 import br.edu.ufsm.persistence.CommitDao;
 import br.edu.ufsm.persistence.CommitFileDao;
 import java.io.IOException;
@@ -29,7 +30,7 @@ public class ExtracaoCommit {
             CommitService commitService = new CommitService(client);
             List<RepositoryCommit> commits = commitService.getCommits(repositoryId);
             for (RepositoryCommit commit : commits) {
-                list.add(new Commit(commit));
+               list.add(new Commit(commit));
             }
         } catch (IOException ex) {
             Logger.getLogger(ExtracaoIssue.class.getName()).log(Level.SEVERE, null, ex);
@@ -37,26 +38,23 @@ public class ExtracaoCommit {
         return list;
     }
 
-    public static void extract(GitHubClient client, RepositoryId repositoryId, List<String> commits) {
-        CommitDao commitDao = new CommitDao();
+    public static void extract(GitHubClient client, RepositoryId repositoryId, List<String> commits, CommitDao commitDao) {
         //Basic authentication
         CommitService commitService = new CommitService(client);
         Commit commitD;
         RepositoryCommit commit;
+//        ArrayList<Commit> commitsSave = new ArrayList<>();
         for (String commitL : commits) {
             try {
                 commit = commitService.getCommit(repositoryId, commitL);
                 commitD = new Commit(commit);
                 commitDao.save(commitD);
+                System.out.println("Extraido commit: " + commitD.getSha());
             } catch (Exception ex) {
                 System.out.println("Impossivel baixar commit: " + commitL + "\n\n" + ex.getMessage());
             } catch (OutOfMemoryError ex) {
                 System.out.println("Estouro de Memória: " + commitL + "\n\n" + ex.getMessage());
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException ex2) {
-                    System.out.println("Puxa, estava dormindo! Você me acordou"+ex2);
-                }
+                System.exit(0);
             }
         }
     }
