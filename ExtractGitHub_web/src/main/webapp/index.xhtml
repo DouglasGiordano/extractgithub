@@ -148,13 +148,20 @@
                             <h:commandButton value="Extrair Arquivos Commit" style="margin-right: 1%" class="btn btn-warning" actionListener="#{extrairMBean.extrairFilesCommit()}" >
                                 <f:ajax execute="@form" rendered="@form"/>
                             </h:commandButton>
-                            <p:commandLink value="Extrair Issue" style="margin-right: 1%" class="btn btn-warning">
-
-                            </p:commandLink>
+                            <hr/>
+                            <h:commandButton value="Extrair Issue" style="margin-right: 1%" class="btn btn-warning" actionListener="#{extrairMBean.extrairIssue()}" >
+<f:ajax execute="@form" rendered="@form"/>
+                            </h:commandButton>
+                            <h:commandButton value="Extrair Comentários Issue" style="margin-right: 1%" class="btn btn-warning" actionListener="#{extrairMBean.extrairIssueComment()}" >
+<f:ajax execute="@form" rendered="@form"/>
+                            </h:commandButton>
                         </div>
                         <hr/>
                         <div class="post-preview">
                             <h:commandButton value="Gerar Rede Temporal" style="margin-right: 1%" class="btn btn-warning"  actionListener="#{extrairMBean.gerarNetwork()}" >
+                                
+                            </h:commandButton>
+                            <h:commandButton value="Gerar Rede Issue" style="margin-right: 1%" class="btn btn-warning"  actionListener="#{extrairMBean.gerarNetworkIssue()}" >
                                 
                             </h:commandButton>
                         </div>

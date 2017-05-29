@@ -189,6 +189,13 @@ public abstract class NewPersistence<T extends EntityBD, PK extends Object> {
         }
         return null;
     }
+    public T getByIdO(Object id, Class classe) {
+        Object o = getEntity().find(classe, id);
+        if(o != null){
+            return (T) o;
+        }
+        return null;
+    }
 
     public List<T> findAll() {
         CriteriaQuery cq = getEntity().getCriteriaBuilder().createQuery();

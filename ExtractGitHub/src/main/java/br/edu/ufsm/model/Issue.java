@@ -13,6 +13,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
@@ -62,11 +63,13 @@ public class Issue implements Serializable, EntityBD {
     private User assignee;
     @ManyToOne(cascade = CascadeType.ALL)
     private User user;
-    @OneToMany(cascade = CascadeType.REFRESH)
+    @OneToMany(cascade = {CascadeType.ALL})
     private List<IssueLabel> labels;
-        @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<IssueComment> issueComments;
-    
+    @ManyToOne(cascade = CascadeType.ALL)
+    private User closedBy;
+
     public Issue(org.eclipse.egit.github.core.Issue issue) {
         this.id = issue.getId();
         this.closedAt = issue.getClosedAt();
@@ -85,9 +88,9 @@ public class Issue implements Serializable, EntityBD {
         this.url = issue.getUrl();
         this.assignee = new User(issue.getAssignee());
         this.user = new User(issue.getUser());
-        if(issue.getLabels() != null){
+        if (issue.getLabels() != null) {
             labels = new ArrayList<>();
-            for(org.eclipse.egit.github.core.Label label: issue.getLabels()){
+            for (org.eclipse.egit.github.core.Label label : issue.getLabels()) {
                 labels.add(new IssueLabel(label));
             }
         }
@@ -110,6 +113,7 @@ public class Issue implements Serializable, EntityBD {
     public void setId(long id) {
         this.id = id;
     }
+
     /**
      * @return the pk
      */
@@ -369,14 +373,29 @@ public class Issue implements Serializable, EntityBD {
     public void setIssueComments(List<IssueComment> issueComments) {
         this.issueComments = issueComments;
     }
+
     public void setComments(List<org.eclipse.egit.github.core.Comment> comment) {
-       if(this.issueComments == null){
-           this.issueComments = new ArrayList<>();
-       }
-        for(org.eclipse.egit.github.core.Comment commentObject: comment){
-           IssueComment issueComment = new IssueComment(commentObject);
-           this.issueComments.add(issueComment);
-       }
-        
+        if (this.issueComments == null) {
+            this.issueComments = new ArrayList<>();
+        }
+        for (org.eclipse.egit.github.core.Comment commentObject : comment) {
+            IssueComment issueComment = new IssueComment(commentObject);
+            this.issueComments.add(issueComment);
+        }
+
+    }
+
+    /**
+     * @return the closedBy
+     */
+    public User getClosedBy() {
+        return closedBy;
+    }
+
+    /**
+     * @param closedBy the closedBy to set
+     */
+    public void setClosedBy(User closedBy) {
+        this.closedBy = closedBy;
     }
 }

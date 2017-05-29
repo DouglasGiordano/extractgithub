@@ -74,6 +74,9 @@ public class PullRequest implements Serializable {
     private User user;
 
     public PullRequest(org.eclipse.egit.github.core.PullRequest pull) {
+        if(pull==null){
+            return;
+        }
         this.id = pull.getId();
         this.mergeable = pull.isMergeable();
         this.merged = pull.isMerged();

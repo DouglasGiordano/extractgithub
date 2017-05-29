@@ -14,19 +14,26 @@ import br.edu.ufsm.model.Issue;
 import br.edu.ufsm.model.Project;
 import br.edu.ufsm.persistence.CommitDao;
 import br.edu.ufsm.persistence.CommitFileDao;
+import br.edu.ufsm.persistence.IssueDao;
 import br.edu.ufsm.persistence.ProjectDao;
+import java.io.IOException;
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.inject.Named;
 import javax.faces.view.ViewScoped;
+import org.eclipse.egit.github.core.Comment;
 import org.eclipse.egit.github.core.RepositoryCommit;
 import org.eclipse.egit.github.core.RepositoryId;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.CommitService;
+import org.eclipse.egit.github.core.service.IssueService;
 import org.eclipse.egit.github.core.service.RepositoryService;
 
 /**
@@ -50,6 +57,9 @@ public class ExtrairMBean implements Serializable {
 
     @EJB
     private ProjectDao projectDao;
+
+    @EJB
+    private IssueDao issueDao;
 
     @EJB
     private CommitDao commitDao;
@@ -124,7 +134,33 @@ public class ExtrairMBean implements Serializable {
             Project projeto = ExtracaoRepository.extractRepository(client, repo);
             List<Issue> issues = ExtracaoIssue.extract(client, repo);
             projeto.setIssue(issues);
-            new ProjectDao().save(projeto);
+            projectDao.save(projeto);
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Dados do repositório foram extraidos com sucesso.", ""));
+        } catch (Exception ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Ocorreu um erro ao extrair os dados: " + ex.getMessage(), ""));
+            ex.printStackTrace();
+        }
+        System.out.println("Finalizando");
+    }
+    public void extrairIssueComment() {
+        try {
+            System.out.println("Iniciando");
+            GitHubClient client = new GitHubClient();
+            client.setCredentials(usuario, senha);
+            RepositoryService service = new RepositoryService();
+            RepositoryId repo = new RepositoryId(proprietario, repositorio);
+            Project projeto = ExtracaoRepository.extractRepository(client, repo);
+            List<BigInteger> issues = issueDao.getIssues(projeto.getId());
+            IssueService serviceIssue = new IssueService(client);
+            for (BigInteger issueId : issues) {
+                Issue issue = issueDao.getByIdO(issueId.longValueExact(), Issue.class);
+                if (issue.getComments() != 0) {
+                    List<Comment> issueComents = serviceIssue.getComments(repo, issue.getNumber());
+                    issue.setComments(issueComents);
+                    issueDao.save(issue);
+                    System.out.println("Extraido comentarios issue: " + issue.getNumber());
+                }
+            }
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Dados do repositório foram extraidos com sucesso.", ""));
         } catch (Exception ex) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Ocorreu um erro ao extrair os dados: " + ex.getMessage(), ""));
@@ -142,6 +178,24 @@ public class ExtrairMBean implements Serializable {
             Project projeto = ExtracaoRepository.extractRepository(client, repo);
             List<String> lista = commitFileDao.getUsersFile(projeto.getId());
             new GeradorCombinacoes(projeto.getName(), "#31948c", projeto.getId()).execute(lista);
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Rede temporal gerada com sucesso.", ""));
+        } catch (Exception ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Ocorreu um erro ao gerar a rede temporal: " + ex.getMessage(), ""));
+            ex.printStackTrace();
+        }
+        System.out.println("Finalizando");
+    }
+    public void gerarNetworkIssue() {
+        try {
+            GitHubClient client = new GitHubClient();
+            client.setCredentials(usuario, senha);
+            RepositoryService service = new RepositoryService();
+            RepositoryId repo = new RepositoryId(proprietario, repositorio);
+            Project projeto = ExtracaoRepository.extractRepository(client, repo);
+            List<String> lista = issueDao.getRede(projeto.getId());
+            for(String t: lista){
+                System.out.println(t);
+            }
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Rede temporal gerada com sucesso.", ""));
         } catch (Exception ex) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Ocorreu um erro ao gerar a rede temporal: " + ex.getMessage(), ""));

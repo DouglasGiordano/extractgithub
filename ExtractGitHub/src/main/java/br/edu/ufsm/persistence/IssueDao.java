@@ -6,24 +6,28 @@
 package br.edu.ufsm.persistence;
 
 import br.edu.ufsm.model.Issue;
+import java.math.BigInteger;
+import java.util.List;
 import javax.annotation.PostConstruct;
+import javax.ejb.LocalBean;
+import javax.ejb.Stateful;
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
+import javax.persistence.Query;
 
 /**
  *
- * @author Dougl
+ * @author Douglas Giordano
  */
+@Stateful
+@LocalBean
 public class IssueDao extends NewPersistence<Issue, Integer> {
-
-    //<editor-fold defaultstate="collapsed" desc="INIT">
     @PersistenceContext(unitName = "ExtractGitHub", name = "ExtractGitHub", type = PersistenceContextType.TRANSACTION)
-    private final EntityManager entityManager;
-
+    private EntityManager entityManager;
     public IssueDao() {
-        this.entityManager = Persistence.createEntityManagerFactory("ExtractGitHub").createEntityManager();
+
     }
 
     @Override
@@ -35,5 +39,30 @@ public class IssueDao extends NewPersistence<Issue, Integer> {
     @Override
     public Issue getObject() {
         return this.object;
+    }
+
+    @Override
+    public EntityManager getEntity() {
+        return this.entityManager;
+    }
+    
+    public List<BigInteger> getIssues(long idProject) {
+        Query q = getEntity().createNativeQuery("SELECT DISTINCT(issue.id) "
+                + "FROM issue "
+                + "INNER JOIN project_issue ON issue.id = issue_id  "
+                + "where project_id = " + idProject + "");
+        return q.getResultList();
+    }
+    
+        public List<String> getRede(long idProject) {
+        Query q = getEntity().createNativeQuery("SELECT GROUP_CONCAT(concat(issue_comment.user_id,'(',user.login,')') SEPARATOR '##'), issue.id\n" +
+"                FROM extract_github.issue_issue_comment\n" +
+"                INNER JOIN issue ON issue.id = issue_issue_comment.issue_id\n" +
+"                INNER JOIN issue_comment ON issue_comment.id = issue_issue_comment.issueComments_id\n" +
+"				INNER JOIN project_issue ON issue.id = project_issue.issue_id\n" +
+"                INNER JOIN extract_github.user ON user.id = issue_comment.user_id\n" +
+"                WHERE project_issue.project_id = " + idProject + " "+
+"                GROUP BY issue_issue_comment.issue_id");
+        return q.getResultList();
     }
 }
